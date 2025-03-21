@@ -1,0 +1,87 @@
+import pandas as pd
+import numpy as np
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+def load_data(pipeline_data_path=None, environmental_data_path=None):
+    """Loads pipeline and environmental data or creates test data if no paths are given."""
+    if pipeline_data_path and environmental_data_path:
+        pipeline_data = gpd.read_file(pipeline_data_path)
+        environmental_data = pd.read_csv(environmental_data_path)
+    else:
+        # Creating test pipeline data
+        pipeline_data = gpd.GeoDataFrame({
+            'pipeline_id': [1, 2, 3, 4, 5],
+            'material': ['steel', 'plastic', 'iron', 'steel', 'plastic'],
+            'age': [10, 25, 30, 15, 20],
+            'geometry': [None] * 5  # Placeholder for GIS data
+        })
+        
+        # Creating test environmental data
+        environmental_data = pd.DataFrame({
+            'pipeline_id': [1, 2, 3, 4, 5],
+            'soil_corrosivity': [7, 5, 8, 6, 4],
+            'moisture_level': [60, 40, 80, 55, 35],
+            'temperature_variation': [15, 25, 30, 20, 10],
+            'corrosion_risk': [1, 0, 1, 0, 0]  # 1 = High Risk, 0 = Low Risk
+        })
+    
+    return pipeline_data, environmental_data
+
+def preprocess_data(pipeline_data, environmental_data):
+    """Preprocesses the data by merging datasets and handling missing values."""
+    data = pipeline_data.merge(environmental_data, on='pipeline_id', how='left')
+    data.fillna(method='ffill', inplace=True)
+    
+    # Encoding categorical features
+    label_encoder = LabelEncoder()
+    data['material'] = label_encoder.fit_transform(data['material'])
+    
+    return data
+
+def feature_engineering(data):
+    """Extracts and selects relevant features."""
+    features = ['material', 'age', 'soil_corrosivity', 'moisture_level', 'temperature_variation']
+    target = 'corrosion_risk'
+    
+    X = data[features]
+    y = data[target]
+    
+    # Standardizing numerical features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    return X_scaled, y
+
+def train_model(X, y):
+    """Trains a Random Forest model to predict corrosion risk."""
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    
+    y_pred = model.predict(X_test)
+    
+    print("Model Accuracy:", accuracy_score(y_test, y_pred))
+    print("Classification Report:\n", classification_report(y_test, y_pred))
+    
+    return model, X_test, y_test
+
+def predict_new_data(model, X_test):
+    """Generates predictions for test data."""
+    predictions = model.predict(X_test)
+    return predictions
+
+if __name__ == "__main__":
+    pipeline_data, environmental_data = load_data()
+    data = preprocess_data(pipeline_data, environmental_data)
+    X, y = feature_engineering(data)
+    model, X_test, y_test = train_model(X, y)
+    predictions = predict_new_data(model, X_test)
+    
+    print("Predicted Corrosion Risk:", predictions)

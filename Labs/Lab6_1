@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coors Field Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map { height: 1000px; }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Girard Lab 6: Coors Field Map</h1>
+    <div id="map"></div>
+    <script>
+        var map = L.map('map').setView([39.7559, -104.9942], 17);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        
+        function onEachFeature(feature, layer) {
+            if (feature.properties && feature.properties.popupContent) {
+                layer.bindPopup(feature.properties.popupContent);
+            }
+        }
+        
+        
+        var pointsGeoJSON = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "popupContent": "I started out as a GeoJSON Point, but now I'm a Leaflet vector! This is home plate at Coors Field."
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-104.99420347839008, 39.755725269256786]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "popupContent": "I started out as a GeoJSON Point, but now I'm a Leaflet vector! This is first base at Coords Field."
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-104.9939624789592, 39.75587504532323]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "popupContent": "I started out as a GeoJSON Point, but now I'm a Leaflet vector! This is second base at Coords Field."
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-104.99416833850057, 39.756052378692544]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "popupContent": "I started out as a GeoJSON Point, but now I'm a Leaflet vector! This is third base at Coords Field."
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-104.9944097373113, 39.755905975594935]
+                    }
+                },
+            ]
+        };
+        
+        var lineGeoJSON = {
+            "type": "Feature",
+            "properties": {
+                "popupContent": "I started out as a GeoJSON LineString, but now I'm a Leaflet vector! This is the basepath where the baserunners go."
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [-104.99420347839008, 39.755725269256786],
+                    [-104.9939624789592, 39.75587504532323],
+                    [-104.99416833850057, 39.756052378692544],
+                    [-104.9944097373113, 39.755905975594935],
+                    [-104.99420347839008, 39.755725269256786]
+                ]
+            }
+        };
+        
+        var polygonGeoJSON = {
+            "type": "Feature",
+            "properties": {
+                "popupContent": "I started out as a GeoJSON Polygon, but now I'm a Leaflet vector! This outlines Coors Field!"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [-104.99421997102387, 39.755593063702484],
+                        [-104.99415023358966, 39.75560028079667],
+                        [-104.99409055443924, 39.75563327321762],
+                        [-104.99405233296046, 39.75559976529013],
+                        [-104.99361781510062, 39.755944122911124],
+                        [-104.99343140157382, 39.75614980875532],
+                        [-104.99343341323058, 39.75617197536304],
+                        [-104.99324968191274, 39.7562967268398],
+                        [-104.99325035246498, 39.756381784532806],
+                        [-104.99388238267137, 39.75685489346864],
+                        [-104.9944798447279, 39.756851284987356],
+                        [-104.99502567426293, 39.756425482865026],
+                        [-104.99491100982767, 39.75631465015914],
+                        [-104.99473532513734, 39.75602236026821],
+                        [-104.99436450974149, 39.755635731523085],
+                        [-104.99433701709914, 39.7556491346891],
+                        [-104.99428136126222, 39.75560480113001]
+                    ]
+                ]
+            }
+        };
+        
+        L.geoJSON(pointsGeoJSON, {
+            onEachFeature: onEachFeature
+        }).addTo(map);
+        
+        L.geoJSON(lineGeoJSON, {
+            style: { color: "blue", weight: 4 },
+            onEachFeature: onEachFeature
+        }).addTo(map);
+        
+        L.geoJSON(polygonGeoJSON, {
+            style: { color: "green", weight: 2, fillOpacity: 0.4 },
+            onEachFeature: onEachFeature
+        }).addTo(map);
+    </script>
+</body>
+</html>
